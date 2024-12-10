@@ -89,10 +89,14 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         print("\nCaught KeyboardInterrupt, shutting down gracefully.")
         tasks = asyncio.all_tasks(loop)
+        """
         for task in tasks:
             task.cancel()
-        loop.run_until_complete(asyncio.gather(*tasks, return_exceptions=True))
-        loop.close()
+        """
+
+        upload_task.cancel()  # Attempt to cancel the task gracefully
+        # loop.run_until_complete(asyncio.gather(*tasks, return_exceptions=True))
+        # loop.close()
         print("Cleanup complete.")
     except Exception as e:
         print(f"An error occurred: {e}")
