@@ -12,6 +12,7 @@ class Args_parser():
 		"face_det_batch_size" : 16,
 		"pads" : [0, 10, 0, 0],
 		"nosmooth" : False,
+		"warm_start" : False,
 		"checkpoint_path" : "checkpoint_path/wav2lip_gan.pth",
 		"video_file_path" : customizable_params.static_video_file_path,
 		"audio_filename" : "test_medium.wav"
@@ -44,7 +45,12 @@ class Args_parser():
 							f.write(file_data)
 						print(f"File '{filename}' received and saved.")
 					else:
-						self.params[key] = form.getvalue(key)
+						if form.getvalue(key) == 'True':
+							self.params[key] = True
+						elif form.getvalue(key) == 'False':
+							self.params[key] = False
+						else:
+							self.params[key] = form.getvalue(key)
 
 		# merge with default params
 		self.params = self.default_params | self.params

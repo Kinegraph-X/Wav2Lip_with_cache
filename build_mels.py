@@ -43,6 +43,6 @@ def start(full_frames):
 
 	print("Length of mel chunks: {}".format(len(mel_chunks)))
 
-	full_frames = full_frames[:len(mel_chunks)]
+	# full_frames = full_frames[:len(mel_chunks)]
 
 	return full_frames, mel_chunks

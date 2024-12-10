@@ -38,7 +38,7 @@ def load_model(path, video_path):
 	model = model.to(device)
 	return model.eval()
 
-def start(full_frames, mel_chunks):
+def start(full_frames):
 	batch_size = hparams.video_batch_size
 
 	cache = Wav2LipCache('cache/embeddings')

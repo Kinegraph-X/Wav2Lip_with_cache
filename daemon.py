@@ -2,12 +2,9 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 import urllib.parse as parse
 from args_parser import args_parser
 
-import prepare_video
-import face_detect
-import build_mels
-import image_embeddings_preprocess
-import final_processing
-import time
+from process_Wav2Lip import process
+
+
 
 
 
@@ -19,16 +16,7 @@ class HelloHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         args_parser.parse(self)
         
-        # """
-        start_time = time.perf_counter()
-        images = prepare_video.start()
-        face_detect_results = face_detect.start(images)
-        full_frames, mel_chunks = build_mels.start(images)
-        image_embeddings_preprocess.start(full_frames, mel_chunks)
-        final_processing.start(full_frames, mel_chunks, face_detect_results)
-        end_time = time.perf_counter()
-        print(f'Total script took {end_time - start_time}')
-        # """
+        process()
 
         self.send_response(200)
         self.send_header("Content-type", "text/html")
@@ -47,14 +35,7 @@ class HelloHandler(BaseHTTPRequestHandler):
             self.wfile.write(b"Audio file not received, aborting...")
             return
 
-        start_time = time.perf_counter()
-        images = prepare_video.start()
-        face_detect_results = face_detect.start(images)
-        full_frames, mel_chunks = build_mels.start(images)
-        image_embeddings_preprocess.start(full_frames, mel_chunks)
-        final_processing.start(full_frames, mel_chunks, face_detect_results)
-        end_time = time.perf_counter()
-        print(f'Total script took {end_time - start_time}')
+        process()
 
         self.send_response(200)
         self.send_header("Content-type", "text/html")
