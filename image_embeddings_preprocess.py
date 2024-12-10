@@ -42,7 +42,7 @@ def start(full_frames, mel_chunks):
 	batch_size = hparams.video_batch_size
 
 	cache = Wav2LipCache('cache/embeddings')
-	if cache.is_cached(hparams.static_video_file_path, "embeddings"):
+	if cache.is_cached(args_parser.params['video_file_path'], "embeddings"):
 		print("Will use precomputed embeddings...")
 		return
 	else:
@@ -54,7 +54,7 @@ def start(full_frames, mel_chunks):
 			print(f'index is {i}')
 			if i == 0:
 				# model = load_model(args_parser.params["checkpoint_path"])
-				model = load_model(args_parser.params["checkpoint_path"], hparams.static_video_file_path)
+				model = load_model(args_parser.params["checkpoint_path"], args_parser.params['video_file_path'])
 				print ("Model loaded")
 
 			img_batch = torch.FloatTensor(np.transpose(img_batch, (0, 3, 1, 2))).to(device)

@@ -49,7 +49,7 @@ def start(full_frames, mel_chunks, face_detect_results):
 		
 		if i == 0:
 			# model = load_model(args_parser.params["checkpoint_path"])
-			model = load_model(hparams.checkpoint_path, hparams.static_video_file_path)
+			model = load_model(hparams.checkpoint_path, args_parser.params['video_file_path'])
 			print ("Model loaded")
 			frame_h, frame_w = full_frames[0].shape[:-1]
 			out = cv2.VideoWriter('temp/result.avi', 

@@ -1,4 +1,4 @@
-import libs.audio as audio
+import custom_libs.audio as audio
 from hparams import hparams
 import time
 

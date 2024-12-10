@@ -37,9 +37,9 @@ def start(images):
 	
 	cache = Wav2LipCache("cache/face_detection")
 	
-	if cache.is_cached(hparams.static_video_file_path, "face_detection"):
+	if cache.is_cached(args_parser.params['video_file_path'], "face_detection"):
 		print("Face_detection file is cached")
-		results = cache.read_npy(hparams.static_video_file_path, "face_detection")
+		results = cache.read_npy(args_parser.params['video_file_path'], "face_detection")
 		print(f"loaded images length is {len(images)}")
 
 	else:
@@ -103,6 +103,6 @@ def start(images):
 		del detector
 
 		print("Face_detection file is not cached")
-		cache.write_npy(hparams.static_video_file_path, 'face_detection', results)
+		cache.write_npy(args_parser.params['video_file_path'], 'face_detection', results)
 
 	return results 

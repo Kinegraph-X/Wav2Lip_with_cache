@@ -16,24 +16,24 @@ args = Args()
 
 def start():
 	cache = Wav2LipCache("cache/raw_frames")
-
-	# if not os.path.isfile(hparams.static_video_file_path):
-	if not os.path.isfile(hparams.static_video_file_path):
+	
+	# if not os.path.isfile(agrs_parser.params.video_file_path):
+	if not os.path.isfile(args_parser.params["video_file_path"]):
 		raise ValueError('--face argument must be a valid path to video/image file')
 
-	# elif hparams.static_video_file_path.split('.')[1] in ['jpg', 'png', 'jpeg']:
-	elif hparams.static_video_file_path.split('.')[1] in ['jpg', 'png', 'jpeg']:
-		full_frames = [cv2.imread(hparams.static_video_file_path)]
+	# elif agrs_parser.params.video_file_path.split('.')[1] in ['jpg', 'png', 'jpeg']:
+	elif args_parser.params['video_file_path'].split('.')[1] in ['jpg', 'png', 'jpeg']:
+		full_frames = [cv2.imread(args_parser.params['video_file_path'])]
 		fps = args_parser.params["fps"]
 
-	elif cache.is_cached(hparams.static_video_file_path, "raw_frames"):
+	elif cache.is_cached(args_parser.params['video_file_path'], "raw_frames"):
 		print("Frames file is cached")
-		full_frames = cache.read_npy(hparams.static_video_file_path, "raw_frames")
+		full_frames = cache.read_npy(args_parser.params['video_file_path'], "raw_frames")
 	
 	else:
-		# video_stream = cv2.VideoCapture(hparams.static_video_file_path)
+		# video_stream = cv2.VideoCapture(args_parser.params['video_file_path'])
 		start_time = time.perf_counter()
-		video_stream = cv2.VideoCapture(hparams.static_video_file_path)
+		video_stream = cv2.VideoCapture(args_parser.params['video_file_path'])
 		end_time = time.perf_counter()
 		print (f'VideoCapure init took : {end_time - start_time}')
 		args_parser.params["fps"] = fps = video_stream.get(cv2.CAP_PROP_FPS)
@@ -70,7 +70,7 @@ def start():
 		print (f'Effective VideoCapure took : {end_time - start_time}')
 
 		print("Frames file is not cached")
-		cache.write_npy(hparams.static_video_file_path, 'raw_frames', full_frames)
+		cache.write_npy(args_parser.params['video_file_path'], 'raw_frames', full_frames)
 
 	print ("Number of frames available for inference: "+str(len(full_frames)))
 	return full_frames

@@ -37,9 +37,9 @@ def start(frames):
 	"""
 	cache = Wav2LipCache("cache/face_detection")
 
-	if cache.is_cached(hparams.static_video_file_path, "face_detection"):
+	if cache.is_cached(args_parser.params['video_file_path'], "face_detection"):
 		print("Face_detection file is cached")
-		face_det_results = cache.read_npy(hparams.static_video_file_path, "face_detection")
+		face_det_results = cache.read_npy(args_parser.params['video_file_path'], "face_detection")
 
 	else:
 		raise Exception("Face_detection file should be cached")

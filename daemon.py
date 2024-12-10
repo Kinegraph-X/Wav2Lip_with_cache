@@ -17,7 +17,8 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 # Custom HTTP handler
 class HelloHandler(BaseHTTPRequestHandler):
     def do_GET(self):
-
+        args_parser.parse(self)
+        
         # """
         start_time = time.perf_counter()
         images = prepare_video.start()
