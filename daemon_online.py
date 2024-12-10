@@ -9,6 +9,9 @@ from args_parser import args_parser
 
 from process_Wav2Lip import process
 
+import warnings
+warnings.simplefilter(action='ignore', category=FutureWarning)
+
 # Enable nested event loops
 nest_asyncio.apply()
 

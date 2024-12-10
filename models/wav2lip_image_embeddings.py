@@ -108,7 +108,7 @@ class Wav2Lip(nn.Module):
             embeddings.append(x)
             # print("Cached embeddings shape:", x.shape)
 
-        print(f'at step {idx} embeddings size is {len(embeddings)}')
+        # print(f'at step {idx} embeddings size is {len(embeddings)}')
 
         # Save embeddings
         if (idx == last_idx):
