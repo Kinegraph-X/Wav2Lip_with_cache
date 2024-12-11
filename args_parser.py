@@ -1,4 +1,5 @@
 import os, cgi
+from urllib.parse import urlparse
 from customizable_params import customizable_params
 
 class Args_parser():
@@ -21,6 +22,9 @@ class Args_parser():
 		self.params = self.default_params
 
 	def parse(self, req):
+		parsed_req = urlparse(req.path)
+		self.params["path"] = parsed_req.path
+
 		if req.headers['content-type'] is not None:
 			content_type, params_dict = cgi.parse_header(req.headers['content-type'])
 		

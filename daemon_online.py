@@ -26,13 +26,16 @@ class HelloHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         args_parser.parse(self)
         
-        process()
-
         self.send_response(200)
         self.send_header("Content-type", "text/html")
         self.end_headers()
-        self.wfile.write(b"Completed new processing")
-        # """
+        
+        if "path" in args_parser.params:
+            with open(args_parser.params["path"], 'rb') as file: 
+                self.wfile.write(file.read())
+        else:
+            process()
+            self.wfile.write(b"Completed new processing")
 
     def do_POST(self):
         

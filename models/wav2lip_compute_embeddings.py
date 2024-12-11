@@ -104,7 +104,7 @@ class Wav2Lip(nn.Module):
             cached_data_len = len(self.cached_data)
             for i in range(7):
                 temp_list = []
-                for j in range(batch_size):
+                for j in range(batch_size if batch_size == audio_sequences.shape[0] else audio_sequences.shape[0]):
                     # Calculate the circular index
                     circular_idx = (idx * batch_size * 7 + i + j * 7) % cached_data_len
                     

@@ -1,5 +1,4 @@
 from http.server import HTTPServer, BaseHTTPRequestHandler
-import urllib.parse as parse
 from args_parser import args_parser
 
 from process_Wav2Lip import process
@@ -16,13 +15,18 @@ class HelloHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         args_parser.parse(self)
         
-        process()
-
         self.send_response(200)
         self.send_header("Content-type", "text/html")
         self.end_headers()
-        self.wfile.write(b"Completed new processing")
-        # """
+        print(args_parser.params)
+        """
+        if "path" in args_parser.params:
+            with open(args_parser.params["path"], 'rb') as file: 
+                self.wfile.write(file.read())
+        else:
+            process()
+            self.wfile.write(b"Completed new processing")
+        """
 
     def do_POST(self):
         
@@ -35,7 +39,7 @@ class HelloHandler(BaseHTTPRequestHandler):
             self.wfile.write(b"Audio file not received, aborting...")
             return
 
-        process()
+        # process()
 
         self.send_response(200)
         self.send_header("Content-type", "text/html")
