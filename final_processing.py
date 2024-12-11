@@ -62,17 +62,18 @@ def start(full_frames, mel_chunks, face_detect_results):
 
 		pred = pred.cpu().numpy().transpose(0, 2, 3, 1) * 255.
 
-		for p in pred:
+		for abs_frame_nbr, p in zip(range(batch_size), pred):
 			y1, y2, x1, x2 = face_detect_results[i][1]
 			p = cv2.resize(p.astype(np.uint8), (x2 - x1, y2 - y1))
-			f = full_frames[i]
+			frame_index = (i * batch_size + abs_frame_nbr) % len(full_frames)  # Apply modulo
+			f = full_frames[frame_index]
 			f[y1:y2, x1:x2] = p
 			out.write(f)
 
 	out.release()
 	
-	output_path = "output/test_241206.mp4"
-	command = '{}ffmpeg -y -i {} -i {} -strict -2 -q:v 1 {}'.format(hparams.ffmpeg_path, hparams.media_folder + args_parser.params["audio_filename"], 'temp/result.avi', output_path)
+	output_path = hparams.output_video_path
+	command = 'ffmpeg -y -i {} -i {} -strict -2 -q:v 1 {}'.format(hparams.media_folder + args_parser.params["audio_filename"], 'temp/result.avi', output_path)
 	subprocess.call(command, shell=platform.system() != 'Windows', stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
 	# subprocess.call(command, shell=platform.system() != 'Windows', stderr=subprocess.STDOUT)
 	print(f'Video file saved to {output_path}')

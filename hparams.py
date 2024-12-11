@@ -77,7 +77,7 @@ hparams = HParams(
 	fps=25,
 	
 	batch_size=16,
-	video_batch_size = 2,
+	video_batch_size = 32,
 	initial_learning_rate=1e-4,
 	nepochs=200000000000000000,  ### ctrl + c, stop whenever eval loss is consistently greater than train loss for ~10 epochs
 	num_workers=16,
@@ -98,7 +98,8 @@ hparams = HParams(
 	ffmpeg_path="ffmpeg/bin/",
 	checkpoint_path="checkpoint_path/wav2lip_gan.pth",
 	# static_video_file_path="media/Avatar_Small_Master.mp4",
-	test_audio_file_path="media/test_medium.wav"
+	test_audio_file_path="media/test_medium.wav",
+	output_video_path = "output/lipsynced_avatar.mp4"
 )
 
 
