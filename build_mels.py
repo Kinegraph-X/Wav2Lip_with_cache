@@ -25,13 +25,18 @@ def start(full_frames):
 	print(f'Audio loading took {end_time - init_time}')
 
 	init_time = time.perf_counter()
-	mel = audio.melspectrogram(wav)
+	try:
+		mel = audio.melspectrogram(wav)
+	except Exception as e:
+		raise e
+	
 	end_time = time.perf_counter()
-	print(f'mel shape is {mel.shape}')
-	print(f'mel spectrogram took {end_time - init_time}')
+	# print(f'mel shape is {mel.shape}')
+	# print(f'mel spectrogram took {end_time - init_time}')
 
 	mel_chunks = []
 	mel_idx_multiplier = 80./args_parser.params["fps"] 
+	# print(f'mel_idx_multiplier is {mel_idx_multiplier}')
 	i = 0
 	while 1:
 		start_idx = int(i * mel_idx_multiplier)

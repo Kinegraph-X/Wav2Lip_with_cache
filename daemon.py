@@ -39,7 +39,7 @@ class HelloHandler(BaseHTTPRequestHandler):
             self.wfile.write(b"Audio file not received, aborting...")
             return
 
-        # process()
+        process()
 
         self.send_response(200)
         self.send_header("Content-type", "text/html")

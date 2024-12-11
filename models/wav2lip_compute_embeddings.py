@@ -116,6 +116,7 @@ class Wav2Lip(nn.Module):
         else:
             raise Exception('Embeddings should be cached in this version of Wav2Lip')
         
+        # print(audio_sequences.shape)
         audio_embedding = self.audio_encoder(audio_sequences) # B, 512, 1, 1
 
         x = audio_embedding

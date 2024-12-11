@@ -12,10 +12,17 @@ warm_start = {
 def process_warmed_up():
     # """
     start_time = time.perf_counter()
-    _, mel_chunks = build_mels.start(warm_start["frames"])
+
+    # mel spectrogram may fail is the file is well formatted but too short
+    try:
+      _, mel_chunks = build_mels.start(warm_start["frames"])
+    except Exception as e:
+      return e.args
+    
     final_processing.start(warm_start["frames"], mel_chunks, warm_start["face_detect_results"])
     end_time = time.perf_counter()
     print(f'Total script took {end_time - start_time}')
+    return "Processing succeeded"
     # """
 
 def process_cold_start():
@@ -26,14 +33,21 @@ def process_cold_start():
     face_detect_results = face_detect.start(frames)
     warm_start["face_detect_results"] = face_detect_results
     image_embeddings_preprocess.start(frames)
-    _, mel_chunks = build_mels.start(frames)
+
+    # mel spectrogram may fail is the file is well formatted but too short
+    try:
+      _, mel_chunks = build_mels.start(warm_start["frames"])
+    except Exception as e:
+      return e.args
+    
     final_processing.start(frames, mel_chunks, face_detect_results)
     end_time = time.perf_counter()
     print(f'Total script took {end_time - start_time}')
+    return "Processing succeeded"
     # """
 
 def process():
     if (len(warm_start) > 0):
-        process_warmed_up()
+        return process_warmed_up()
     else:
-        process_cold_start()
+        return process_cold_start()

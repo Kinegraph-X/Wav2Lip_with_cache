@@ -83,6 +83,8 @@ def linearspectrogram(wav):
     return S
 
 def melspectrogram(wav):
+    if librosa.get_duration(y=wav) < .5:
+        raise Exception("Received audio file is shorter than 0.5 s. Seems ther was a problem in your recording process")
     init_time = time.perf_counter()
     D = _stft(preemphasis(wav, hp.preemphasis, hp.preemphasize))
     end_time = time.perf_counter()

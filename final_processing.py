@@ -54,7 +54,9 @@ def start(full_frames, mel_chunks, face_detect_results):
 			frame_h, frame_w = full_frames[0].shape[:-1]
 			out = cv2.VideoWriter('temp/result.avi', 
 										cv2.VideoWriter_fourcc(*'DIVX'), args_parser.params["fps"], (frame_w, frame_h))
-			
+		
+		# print(f'mel_batch type {type(mel_batch)}')
+		# print(f'mel_batch shape {mel_batch.shape}')
 		mel_batch = torch.FloatTensor(np.transpose(mel_batch, (0, 3, 1, 2))).to(device)
 
 		with torch.no_grad():
