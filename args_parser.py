@@ -23,7 +23,7 @@ class Args_parser():
 
 	def parse(self, req):
 		parsed_req = urlparse(req.path)
-		self.params["path"] = parsed_req.path
+		self.params["path"] = parsed_req.path[1:]
 
 		if req.headers['content-type'] is not None:
 			content_type, params_dict = cgi.parse_header(req.headers['content-type'])

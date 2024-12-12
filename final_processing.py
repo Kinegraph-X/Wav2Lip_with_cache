@@ -75,7 +75,7 @@ def start(full_frames, mel_chunks, face_detect_results):
 	out.release()
 	
 	output_path = hparams.output_video_path
-	command = 'ffmpeg -y -i {} -i {} -strict -2 -q:v 1 {}'.format(hparams.media_folder + args_parser.params["audio_filename"], 'temp/result.avi', output_path)
-	subprocess.call(command, shell=platform.system() != 'Windows', stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
-	# subprocess.call(command, shell=platform.system() != 'Windows', stderr=subprocess.STDOUT)
+	command = 'ffmpeg -nostdin -y -i {} -i {} -strict -2 -q:v 1 {}'.format(hparams.media_folder + args_parser.params["audio_filename"], 'temp/result.avi', output_path)
+	# subprocess.call(command, shell=platform.system() != 'Windows', stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+	subprocess.call(command, shell=platform.system() != 'Windows', stderr=subprocess.STDOUT)
 	print(f'Video file saved to {output_path}')

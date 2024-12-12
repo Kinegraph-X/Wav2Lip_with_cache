@@ -18,15 +18,13 @@ class HelloHandler(BaseHTTPRequestHandler):
         self.send_response(200)
         self.send_header("Content-type", "text/html")
         self.end_headers()
-        print(args_parser.params)
-        """
+        
         if "path" in args_parser.params:
             with open(args_parser.params["path"], 'rb') as file: 
                 self.wfile.write(file.read())
         else:
-            process()
-            self.wfile.write(b"Completed new processing")
-        """
+            message = process()
+            self.wfile.write(f'{message}'.encode())
 
     def do_POST(self):
         
@@ -39,12 +37,12 @@ class HelloHandler(BaseHTTPRequestHandler):
             self.wfile.write(b"Audio file not received, aborting...")
             return
 
-        process()
+        message = process()
 
         self.send_response(200)
         self.send_header("Content-type", "text/html")
         self.end_headers()
-        self.wfile.write(b"Completed new processing")
+        self.wfile.write(f'{message}'.encode())
 
 def main():
     port = 3000
