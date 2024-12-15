@@ -10,6 +10,7 @@ On your local machine, the workers are responsible for recording the sound form 
 ### Installation
 
 ```shell
+# ngrok, in case you need it (only for jupyter notebooks)
 wget -q -O ngrok.zip https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-amd64.zip
 unzip -o ngrok.zip
 mv ngrok /usr/local/bin/ngrok
