@@ -1,58 +1,127 @@
-from http.server import HTTPServer, BaseHTTPRequestHandler
+from flask import Flask, request, send_file, Response
+import wave
+import os, time
+import numpy as np
+from process_Wav2Lip import process, new_batch_available, status, processing_ended
 from args_parser import args_parser
-
-from process_Wav2Lip import process
-
-
-
-
-
+from hparams import hparams
+from serializer import serialize_chunk
 import warnings
+
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
-# Custom HTTP handler
-class HelloHandler(BaseHTTPRequestHandler):
-    def do_GET(self):
-        args_parser.parse(self)
-        
-        self.send_response(200)
-        self.send_header("Content-type", "text/html")
-        self.end_headers()
-        
-        if "path" in args_parser.params:
-            with open(args_parser.params["path"], 'rb') as file: 
-                self.wfile.write(file.read())
-        else:
-            message = process()
-            self.wfile.write(f'{message}'.encode())
+# Flask app
+app = Flask(__name__)
 
-    def do_POST(self):
-        
-        args_parser.parse(self)
-        if not args_parser.params["audio_filename"]:
-            print("Audio file not received, aborting...")
-            self.send_response(500)
-            self.send_header("Content-type", "text/html")
-            self.end_headers()
-            self.wfile.write(b"Audio file not received, aborting...")
-            return
+# Global variables
+wf = None
+streamed = False
+media_folder = "./media/"  # folder for saving files
+sent_frames = 0
 
-        message = process()
+def handle_chunked_audio(request, audio_chunk):
+	global wf
+	# Initialize or write to the WAV file
+	if wf is None:
+		file_path = os.path.join(media_folder, request.headers.get("X-Audio-Filename"))
+		"""
+		if os.path.exists(file_path):
+			print(f'Wavefile removed')
+			os.remove(file_path)
+		"""
+		print(f'Wavefile created : {request.headers.get("X-Audio-Filename")}')
+		wf = wave.open(file_path, 'wb')
+		wf.setnchannels(int(request.headers.get("X-Channels")))
+		wf.setsampwidth(2)  # 16-bit PCM
+		wf.setframerate(int(request.headers.get("X-Sample-Rate")))
 
-        self.send_response(200)
-        self.send_header("Content-type", "text/html")
-        self.end_headers()
-        self.wfile.write(f'{message}'.encode())
+	if not request.headers.get("X-Audio-Chunk-Timestamp") == 'EOF':
+		if len(audio_chunk):
+			wf.writeframes(audio_chunk)
+	else:
+		wf.close()
+		wf = None
 
-def main():
-    port = 3000
-    server_address = ('', port)
-    httpd = HTTPServer(server_address, HelloHandler)
+@app.route('/', methods=['GET'])
+def handle_get():
+	
+	args_parser.parse(request)
+	if request.args.get('path'):
+		file_path = args_parser.params["path"]
+		if os.path.exists(file_path):
+			return send_file(file_path, mimetype="application/octet-stream")
+		return "File not found.", 404
 
-    try:
-        httpd.serve_forever()
-    except KeyboardInterrupt:
-        httpd.shutdown()
+	if request.args.get("next_batch"):
+		print('polling request received')
+		return long_polling()
 
-if __name__ == "__main__": 
-    main()
+	return "Request received", 200
+
+@app.route('/', methods=['POST'])
+def handle_post():
+	""" POST requests are for chunked audio data."""
+	global wf, streamed, sent_frames
+	# """
+	args_parser.parse(request)
+
+	timestamp = request.headers.get("X-Audio-Chunk-Timestamp")
+	content_length = request.content_length or 0
+
+	if not request.headers.get("X-Audio-Filename"):
+		return "Audio file not received, aborting...", 200
+
+	args_parser.params["audio_filename"] = request.headers.get("X-Audio-Filename")
+	if timestamp and timestamp != 'EOF':
+		streamed = True
+		if content_length > 0:
+			handle_chunked_audio(request, request.data)
+			return f"Received chunk: {timestamp}", 200
+	elif timestamp == 'EOF':
+		wf = None
+		sent_frames = 0
+		status["current_frame_count"] = 0
+		process(streamed)
+		return f'Completed processing new audio file: {request.headers.get("X-Audio-Filename")}', 200
+
+	# """
+	return "Invalid Request", 400
+
+def long_polling():
+	global sent_frames, current_frame_count
+	""" long polling for video chunks."""
+	timeout = 30
+	start_time = time.time()
+
+	if processing_ended.is_set():
+		processing_ended.clear()
+		return 'processing_ended', 200, {"Content-Type": "text/plain"}
+
+	while not new_batch_available.is_set():
+		if time.time() - start_time < timeout:
+			time.sleep(.1)
+		else:
+			return 'long_polling_timeout', 200, {"Content-Type": "text/plain"}
+
+	# print(f'new batch yielded. state of processing_ended : {processing_ended.is_set()}')
+	processed_frames = np.load(hparams.temp_pred_file_path)
+	# print(f'{status["current_frame_count"]} {len(processed_frames)}')
+	if status["current_frame_count"] == len(processed_frames):
+		processing_ended.set()
+
+	# print(processed_frames.shape)
+	current_cursor = sent_frames
+	sent_frames = len(processed_frames)
+	new_batch_available.clear()
+
+	data = processed_frames[current_cursor:]
+	serialized_chunk = serialize_chunk(data.shape, current_cursor, data)
+	return Response(
+		serialized_chunk,
+		content_type='application/octet-stream',
+		headers={'Content-Disposition': 'attachment; filename="chunk.bin"'}
+	)
+
+
+if __name__ == '__main__':
+	app.run(host='0.0.0.0', port=3000, threaded=True)

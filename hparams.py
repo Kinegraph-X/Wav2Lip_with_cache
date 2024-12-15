@@ -97,6 +97,7 @@ hparams = HParams(
 	media_folder = "media/",
 	ffmpeg_path="ffmpeg/bin/",
 	checkpoint_path="checkpoint_path/wav2lip_gan.pth",
+	temp_pred_file_path = "temp/cached_preds.npy",
 	# static_video_file_path="media/Avatar_Small_Master.mp4",
 	test_audio_file_path="media/test_medium.wav",
 	output_video_path = "output/lipsynced_avatar.mp4"

@@ -8,4 +8,5 @@ tqdm==4.45.0
 numba==0.60
 conv==0.2
 ngrok
+pyngrok
 nest_asyncio

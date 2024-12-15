@@ -1,5 +1,5 @@
 import os, cgi
-from urllib.parse import urlparse
+from urllib.parse import urlparse, parse_qs
 from customizable_params import customizable_params
 
 class Args_parser():
@@ -20,14 +20,14 @@ class Args_parser():
 	}
 	def __init__(self):
 		self.params = self.default_params
+		self.headers = {}
 
 	def parse(self, req):
-		parsed_req = urlparse(req.path)
-		self.params["path"] = parsed_req.path[1:]
-
-		if req.headers['content-type'] is not None:
-			content_type, params_dict = cgi.parse_header(req.headers['content-type'])
 		
+		if req.headers.get('Content-Type') is not None:
+			# content_type, params_dict = cgi.parse_header(req.headers['Content-Type'])
+			content_type = req.headers.get('Content-Type')
+			
 			if content_type == 'multipart/form-data':
 				# Parse the form-data
 				form = cgi.FieldStorage(
@@ -55,6 +55,10 @@ class Args_parser():
 							self.params[key] = False
 						else:
 							self.params[key] = form.getvalue(key)
+
+			elif content_type == 'application/octet-stream':
+				for key, value in req.headers.items():
+					self.headers[key] = value
 
 		# merge with default params
 		self.params = self.default_params | self.params

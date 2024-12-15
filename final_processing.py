@@ -38,7 +38,7 @@ def load_model(path, video_path):
 	model = model.to(device)
 	return model.eval()
 
-def start(full_frames, mel_chunks, face_detect_results):
+def start(full_frames, mel_chunks, face_detect_results, streamed = False):
 	batch_size = hparams.video_batch_size
 
 	# for i, (mel_batch) in enumerate(tqdm(gen, total=int(np.ceil(float(len(mel_chunks))/batch_size)))):
@@ -51,8 +51,9 @@ def start(full_frames, mel_chunks, face_detect_results):
 			# model = load_model(args_parser.params["checkpoint_path"])
 			model = load_model(hparams.checkpoint_path, args_parser.params['video_file_path'])
 			print ("Model loaded")
-			frame_h, frame_w = full_frames[0].shape[:-1]
-			out = cv2.VideoWriter('temp/result.avi', 
+			if not streamed:
+				frame_h, frame_w = full_frames[0].shape[:-1]
+				out = cv2.VideoWriter('temp/result.avi', 
 										cv2.VideoWriter_fourcc(*'DIVX'), args_parser.params["fps"], (frame_w, frame_h))
 		
 		# print(f'mel_batch type {type(mel_batch)}')
@@ -63,19 +64,27 @@ def start(full_frames, mel_chunks, face_detect_results):
 			pred = model(mel_batch, i, batch_size)
 
 		pred = pred.cpu().numpy().transpose(0, 2, 3, 1) * 255.
-
+		
+		computed_images = []
 		for abs_frame_nbr, p in zip(range(batch_size), pred):
 			y1, y2, x1, x2 = face_detect_results[i][1]
 			p = cv2.resize(p.astype(np.uint8), (x2 - x1, y2 - y1))
 			frame_index = (i * batch_size + abs_frame_nbr) % len(full_frames)  # Apply modulo
 			f = full_frames[frame_index]
 			f[y1:y2, x1:x2] = p
-			out.write(f)
+			computed_images.append(f)
 
-	out.release()
+		if not streamed:
+			for image in computed_images:
+				out.write(image)
+		else:
+			yield computed_images
+
+	if not streamed:
+		out.release()
 	
-	output_path = hparams.output_video_path
-	command = 'ffmpeg -nostdin -y -i {} -i {} -strict -2 -q:v 1 {}'.format(hparams.media_folder + args_parser.params["audio_filename"], 'temp/result.avi', output_path)
-	# subprocess.call(command, shell=platform.system() != 'Windows', stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
-	subprocess.call(command, shell=platform.system() != 'Windows', stderr=subprocess.STDOUT)
-	print(f'Video file saved to {output_path}')
+		output_path = hparams.output_video_path
+		command = 'ffmpeg -nostdin -y -i {} -i {} -strict -2 -q:v 1 {}'.format(hparams.media_folder + args_parser.params["audio_filename"], 'temp/result.avi', output_path)
+		# subprocess.call(command, shell=platform.system() != 'Windows', stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+		subprocess.call(command, shell=platform.system() != 'Windows', stderr=subprocess.STDOUT)
+		print(f'Video file saved to {output_path}')
