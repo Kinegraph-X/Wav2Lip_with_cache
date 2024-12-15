@@ -1,4 +1,4 @@
-### A fork of the original Wav2Lip library
+# A fork of the original Wav2Lip library
 
 Optimized in perf by caching frequently used video files (and embeddings)
 Also streams i/o to reduce network latency.
@@ -39,7 +39,7 @@ else:
     print("Cuda not available")
 ```
 
-# Install Python dependancies
+### Install Python dependancies
 
 ```shell
 cd Wav2Lip_with_cache && pip install -r requirements.txt
@@ -53,7 +53,7 @@ With ngrok tunnelling and aysncio nesting (to be used from a jupyter notebook, l
 cd Wav2Lip_with_cache && python daemon_online.py
 ```
 
-Witout tunnelling (appropriate for dedicated VM's and local usage)
+Without tunnelling (appropriate for dedicated VM's and local usage)
 
 ```shell
 cd Wav2Lip_with_cache && python daemon.py
