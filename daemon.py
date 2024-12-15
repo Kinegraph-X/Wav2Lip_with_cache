@@ -53,7 +53,7 @@ def handle_get():
 		return "File not found.", 404
 
 	if request.args.get("next_batch"):
-		print('polling request received')
+		# print('polling request received')
 		return long_polling()
 
 	return "Request received", 200
