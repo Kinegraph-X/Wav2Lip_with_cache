@@ -103,7 +103,7 @@ def long_polling():
 		else:
 			return 'long_polling_timeout', 200, {"Content-Type": "text/plain"}
 
-	# print(f'new batch yielded. state of processing_ended : {processing_ended.is_set()}')
+	
 	processed_frames = np.load(hparams.temp_pred_file_path)
 	# print(f'{status["current_frame_count"]} {len(processed_frames)}')
 	if status["current_frame_count"] == len(processed_frames):
@@ -111,6 +111,7 @@ def long_polling():
 
 	# print(processed_frames.shape)
 	current_cursor = sent_frames
+	print(f'new batch yielded, sneding response for frame idx : {current_cursor}')
 	sent_frames = len(processed_frames)
 	new_batch_available.clear()
 

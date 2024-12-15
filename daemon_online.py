@@ -16,6 +16,9 @@ import warnings
 
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
+# Set Ngrok auth token
+os.environ["NGROK_AUTH_TOKEN"] = "2phoX97NqKjjsRqsAE5ijz7MSVC_2rwMGehLUbTvWEWP5YRxj"
+
 # Flask app
 app = Flask(__name__)
 
@@ -114,7 +117,7 @@ def long_polling():
 
 	# print(f'new batch yielded. state of processing_ended : {processing_ended.is_set()}')
 	processed_frames = np.load(hparams.temp_pred_file_path)
-	# print(f'{status["current_frame_count"]} {len(processed_frames)}')
+	print(f'new batch yielded, sneding response for frame idx : {current_cursor}')
 	if status["current_frame_count"] == len(processed_frames):
 		processing_ended.set()
 
@@ -155,3 +158,26 @@ async def main():
         print("Shutting down Flask server and Ngrok tunnel...")
         ngrok.disconnect(public_url)
         ngrok.kill()
+		
+# Run the main function in Jupyter
+if __name__ == "__main__":
+# Use the existing event loop
+    loop = asyncio.get_event_loop()
+    upload_task = loop.create_task(main())  # Start the task in the background
+
+    try:
+        loop.run_until_complete(upload_task)  # Run the event loop until the task completes
+    except KeyboardInterrupt:
+        print("\nCaught KeyboardInterrupt, shutting down gracefully.")
+        # tasks = asyncio.all_tasks(loop)
+        """
+        for task in tasks:
+            task.cancel()
+        """
+
+        upload_task.cancel()  # Attempt to cancel the task gracefully
+        # loop.run_until_complete(asyncio.gather(*tasks, return_exceptions=True))
+        # loop.close()
+        print("Cleanup complete.")
+    except Exception as e:
+        print(f"An error occurred: {e}")
