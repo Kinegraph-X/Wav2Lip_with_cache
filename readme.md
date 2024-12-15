@@ -1,13 +1,17 @@
 # A fork of the original Wav2Lip library
 
-Optimized in perf by caching frequently used video files (and embeddings)
+Optimized in perf by caching frequently used video files (and embeddings).
 Also streams i/o to reduce network latency.
-Run it everywhere, using the residential workers from [the other repo](https://github.com/Kinegraph-X/Wav2Lip_resident)
+Run it anywhere, using the residential workers from [the other repo](https://github.com/Kinegraph-X/Wav2Lip_resident)
 
 This server is responsible for the inference and images generation (run it on a solid GPU)
-On your local machine, the workers are responsible for recording the sound form your mic, and displaying the resulting video.
+On your local machine, the workers are responsible for recording the sound from your mic, and displaying the resulting video.
 
 ### Installation
+
+This is for a Google colab notebok :
+
+Add exclamation marks (!) if you're in that context, or adapt to your env...
 
 ```shell
 # ngrok, in case you need it (only for jupyter notebooks)
