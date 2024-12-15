@@ -3,6 +3,7 @@ import nest_asyncio
 from flask import Flask
 from pyngrok import ngrok  # Use pyngrok for a simpler API
 import os
+from dotenv import load_dotenv
 
 from flask import Flask, request, send_file, Response
 import wave
@@ -17,7 +18,7 @@ import warnings
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
 # Set Ngrok auth token
-os.environ["NGROK_AUTH_TOKEN"] = "2phoX97NqKjjsRqsAE5ijz7MSVC_2rwMGehLUbTvWEWP5YRxj"
+load_dotenv()
 
 # Flask app
 app = Flask(__name__)
@@ -117,12 +118,13 @@ def long_polling():
 
 	# print(f'new batch yielded. state of processing_ended : {processing_ended.is_set()}')
 	processed_frames = np.load(hparams.temp_pred_file_path)
-	print(f'new batch yielded, sneding response for frame idx : {current_cursor}')
+	
 	if status["current_frame_count"] == len(processed_frames):
 		processing_ended.set()
 
 	# print(processed_frames.shape)
 	current_cursor = sent_frames
+	print(f'new batch yielded, sneding response for frame idx : {current_cursor}')
 	sent_frames = len(processed_frames)
 	new_batch_available.clear()
 

@@ -4,6 +4,7 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 import ngrok
 import os
 import logging
+from dotenv import load_dotenv
 
 from args_parser import args_parser
 
@@ -16,7 +17,7 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 nest_asyncio.apply()
 
 # Set Ngrok auth token
-os.environ["NGROK_AUTH_TOKEN"] = "2phoX97NqKjjsRqsAE5ijz7MSVC_2rwMGehLUbTvWEWP5YRxj"
+load_dotenv()
 print(os.getenv("NGROK_AUTH_TOKEN"))
 
 logging.basicConfig(level=logging.INFO)

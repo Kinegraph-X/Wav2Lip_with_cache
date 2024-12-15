@@ -10,3 +10,4 @@ conv==0.2
 ngrok
 pyngrok
 nest_asyncio
+python-dotenv
