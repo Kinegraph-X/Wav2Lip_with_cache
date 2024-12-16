@@ -94,6 +94,7 @@ def handle_post():
 		wf = None
 		sent_frames = 0
 		status["current_frame_count"] = 0
+		status["processed_frames"] = np.empty((0, 270, 480, 3), dtype = np.uint8)
 		process(streamed)
 		return f'Completed processing new audio file: {request.headers.get("X-Audio-Filename")}', 200
 
@@ -117,7 +118,8 @@ def long_polling():
 			return 'long_polling_timeout', 200, {"Content-Type": "text/plain"}
 
 	# print(f'new batch yielded. state of processing_ended : {processing_ended.is_set()}')
-	processed_frames = np.load(hparams.temp_pred_file_path)
+	# processed_frames = np.load(hparams.temp_pred_file_path)
+	processed_frames = status["processed_frames"]
 	
 	if status["current_frame_count"] == len(processed_frames):
 		processing_ended.set()

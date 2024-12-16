@@ -12,11 +12,15 @@ warm_start = {
 
 }
 
-status = {"current_frame_count" : 0}
+status = {
+	"current_frame_count" : 0,
+	"processed_frames" : np.empty((0, 270, 480, 3), dtype = np.uint8)
+	}
 new_batch_available = threading.Event()
 processing_ended = threading.Event()
 
 def save_pred_incrementally(pred):
+		"""
 		if os.path.exists(hparams.temp_pred_file_path):
 				# Load existing file and append new data
 				existing_data = np.load(hparams.temp_pred_file_path)
@@ -24,9 +28,11 @@ def save_pred_incrementally(pred):
 		else:
 				# Start a new file
 				new_data = pred
-		
+		"""
+
+		status["processed_frames"] = np.concatenate((status["processed_frames"], pred), axis = 0)
 		# Save back the combined data
-		np.save(hparams.temp_pred_file_path, new_data)
+		# np.save(hparams.temp_pred_file_path, new_data)
 		new_batch_available.set()
 
 def process_warmed_up(streamed = False):

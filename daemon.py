@@ -53,7 +53,7 @@ def handle_get():
 		return "File not found.", 404
 
 	if request.args.get("next_batch"):
-		# print('polling request received')
+		print('polling request received')
 		return long_polling()
 
 	return "Request received", 200
@@ -81,6 +81,7 @@ def handle_post():
 		wf = None
 		sent_frames = 0
 		status["current_frame_count"] = 0
+		status["processed_frames"] = np.empty((0, 270, 480, 3), dtype = np.uint8)
 		process(streamed)
 		return f'Completed processing new audio file: {request.headers.get("X-Audio-Filename")}', 200
 
@@ -104,14 +105,15 @@ def long_polling():
 			return 'long_polling_timeout', 200, {"Content-Type": "text/plain"}
 
 	
-	processed_frames = np.load(hparams.temp_pred_file_path)
+	# processed_frames = np.load(hparams.temp_pred_file_path)
+	processed_frames = status["processed_frames"]
 	# print(f'{status["current_frame_count"]} {len(processed_frames)}')
 	if status["current_frame_count"] == len(processed_frames):
 		processing_ended.set()
 
 	# print(processed_frames.shape)
 	current_cursor = sent_frames
-	print(f'new batch yielded, sneding response for frame idx : {current_cursor}')
+	print(f'new batch yielded, sending response for frame idx : {current_cursor}')
 	sent_frames = len(processed_frames)
 	new_batch_available.clear()
 
