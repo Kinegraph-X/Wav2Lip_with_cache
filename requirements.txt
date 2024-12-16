@@ -1,3 +1,4 @@
+torchaudio
 librosa==0.10.2
 numpy==1.26.4
 opencv-contrib-python>=4.2.0.34
