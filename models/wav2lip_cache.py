@@ -35,7 +35,10 @@ class Wav2LipCache:
         cache_path = self._get_cache_path(video_path, "embeddings", idx)
         if os.path.exists(cache_path):
             # print(f"Loading embeddings from {cache_path}")
-            return torch.load(cache_path)
+            if torch.cuda.is_available():
+                return torch.load(cache_path, map_location=torch.device('cuda:0'))
+            else:
+                return torch.load(cache_path)
         return None
 
     def is_cached(self, video_path, type, idx = "master"):
