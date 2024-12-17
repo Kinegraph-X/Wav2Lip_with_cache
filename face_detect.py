@@ -49,7 +49,8 @@ def start(images):
 												flip_input=False, device=device)
 
 		batch_size = args_parser.params["face_det_batch_size"]
-		
+		results = []
+
 		while 1:
 			predictions = []
 			try:
@@ -58,12 +59,12 @@ def start(images):
 			except RuntimeError:
 				if batch_size == 1: 
 					raise RuntimeError('Image too big to run face detection on GPU. Please use the --resize_factor argument')
-				batch_size //= 2
-				print('Recovering from OOM error; New batch size: {}'.format(batch_size))
-				continue
+				# batch_size //= 2
+				# print('Recovering from OOM error; New batch size: {}'.format(batch_size))
+				print('Recovering from OOM error; It\'s frequently related to available memory being too low. Aborting...')
+				return results
 			break
 
-		results = []
 		pady1, pady2, padx1, padx2 = args_parser.params["pads"]
 		for rect, image in zip(predictions, images):
 			if rect is None:

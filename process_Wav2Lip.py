@@ -65,6 +65,8 @@ def process_cold_start(streamed = False):
 		frames = prepare_video.start()
 		warm_start["frames"] = frames
 		face_detect_results = face_detect.start(frames)
+		if not len(face_detect_results):
+			return "processing aborted due to an error"
 		warm_start["face_detect_results"] = face_detect_results
 		image_embeddings_preprocess.start(frames)
 
@@ -91,7 +93,7 @@ def process(streamed = False):
 		if os.path.exists(hparams.temp_pred_file_path):
 			os.remove(hparams.temp_pred_file_path)
 
-		if (len(warm_start) > 0):
+		if (len(warm_start) > 1):
 				return process_warmed_up(streamed)
 		else:
 				return process_cold_start(streamed)

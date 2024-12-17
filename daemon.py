@@ -19,6 +19,8 @@ streamed = False
 media_folder = "./media/"  # folder for saving files
 sent_frames = 0
 
+start_time = 0
+
 def handle_chunked_audio(request, audio_chunk):
 	global wf
 	# Initialize or write to the WAV file
@@ -44,7 +46,7 @@ def handle_chunked_audio(request, audio_chunk):
 
 @app.route('/', methods=['GET'])
 def handle_get():
-	
+	global start_time
 	args_parser.parse(request)
 	if request.args.get('path'):
 		file_path = args_parser.params["path"]
@@ -53,6 +55,7 @@ def handle_get():
 		return "File not found.", 404
 
 	if request.args.get("next_batch"):
+		start_time = 0
 		print('polling request received')
 		return long_polling()
 
@@ -89,22 +92,23 @@ def handle_post():
 	return "Invalid Request", 400
 
 def long_polling():
-	global sent_frames, current_frame_count
+	global sent_frames, current_frame_count, start_time
 	""" long polling for video chunks."""
 	timeout = 30
-	start_time = time.time()
+	polling_start_time = time.time()
 
 	if processing_ended.is_set():
 		processing_ended.clear()
 		return 'processing_ended', 200, {"Content-Type": "text/plain"}
 
+	print(f'starting while loop {time.perf_counter() - start_time} ({time.time_ns() / 1000000.})')
 	while not new_batch_available.is_set():
-		if time.time() - start_time < timeout:
+		if time.time() - polling_start_time < timeout:
 			time.sleep(.1)
 		else:
 			return 'long_polling_timeout', 200, {"Content-Type": "text/plain"}
 
-	
+	print(f'time spent while waiting for new batch {time.perf_counter() - start_time} ({time.time_ns() / 1000000.})')
 	# processed_frames = np.load(hparams.temp_pred_file_path)
 	processed_frames = status["processed_frames"]
 	# print(f'{status["current_frame_count"]} {len(processed_frames)}')
@@ -119,6 +123,8 @@ def long_polling():
 
 	data = processed_frames[current_cursor:]
 	serialized_chunk = serialize_chunk(data.shape, current_cursor, data)
+
+	print(f'time spent while polling {time.perf_counter() - start_time} ({time.time_ns() / 1000000.})')
 	return Response(
 		serialized_chunk,
 		content_type='application/octet-stream',

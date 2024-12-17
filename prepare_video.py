@@ -49,7 +49,7 @@ def start():
 			if not still_reading:
 				video_stream.release()
 				break
-			if args_parser.params["resize_factor"] > 1:
+			if args_parser.params["resize_factor"] != 1:
 				frame = cv2.resize(frame, (frame.shape[1]//args_parser.params["resize_factor"], frame.shape[0]//args_parser.params["resize_factor"]))
 
 			if args_parser.params["rotate"]:
