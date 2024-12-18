@@ -67,9 +67,10 @@ def start(full_frames, mel_chunks, face_detect_results, streamed = False):
 		
 		computed_images = []
 		for abs_frame_nbr, p in zip(range(batch_size), pred):
-			y1, y2, x1, x2 = face_detect_results[i][1]
+			frame_index = (i * batch_size + abs_frame_nbr) % len(full_frames)
+			y1, y2, x1, x2 = face_detect_results[frame_index][1]
+			print(y1, y2, x1, x2)
 			p = cv2.resize(p.astype(np.uint8), (x2 - x1, y2 - y1))
-			frame_index = (i * batch_size + abs_frame_nbr) % len(full_frames)  # Apply modulo
 			f = full_frames[frame_index]
 			f[y1:y2, x1:x2] = p
 			computed_images.append(f)
