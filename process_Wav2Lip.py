@@ -7,6 +7,8 @@ import build_mels
 import image_embeddings_preprocess
 import final_processing
 import time
+from models.wav2lip_cache import Wav2LipCache
+from args_parser import args_parser
 
 warm_start = {
 
@@ -14,7 +16,7 @@ warm_start = {
 
 status = {
 	"current_frame_count" : 0,
-	"processed_frames" : np.empty((0, 270, 480, 3), dtype = np.uint8)
+	"processed_frames" : None
 	}
 new_batch_available = threading.Event()
 processing_ended = threading.Event()
@@ -29,6 +31,15 @@ def save_pred_incrementally(pred):
 				# Start a new file
 				new_data = pred
 		"""
+		video_path = args_parser.params['video_file_path']
+		cache = Wav2LipCache('cache/raw_frames')
+		cached_data =  cache.read_npy(video_path, 'raw_frames')
+
+		if status["processed_frames"] is None:
+			status["processed_frames"] = np.empty((0, cached_data.shape[1], cached_data.shape[2], 3), dtype = np.uint8)
+
+		# print(status["processed_frames"].shape)
+		# print(pred.shape)
 
 		status["processed_frames"] = np.concatenate((status["processed_frames"], pred), axis = 0)
 		# Save back the combined data

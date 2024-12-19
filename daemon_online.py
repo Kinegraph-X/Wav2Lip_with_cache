@@ -94,7 +94,7 @@ def handle_post():
 		wf = None
 		sent_frames = 0
 		status["current_frame_count"] = 0
-		status["processed_frames"] = np.empty((0, 270, 480, 3), dtype = np.uint8)
+		status["processed_frames"] = None
 		process(streamed)
 		return f'Completed processing new audio file: {request.headers.get("X-Audio-Filename")}', 200
 

@@ -90,6 +90,8 @@ def start(images):
 		idx = 0
 		for image, box in zip(images, boxes):  # Loop over images and corresponding boxes
 			x1, y1, x2, y2 = box  # Unpack the box coordinates
+			# hack to avoid the beard not being detected (it doesn't really work)
+			y2 = min(y2 + 5, image.shape[0])
 			cropped_image = image[y1:y2, x1:x2]  # Crop the image using slicing
 			resized_image = cv2.resize(cropped_image, (args_parser.params["img_size"], args_parser.params["img_size"]))  # Resize to target size
 			result = [resized_image, (y1, y2, x1, x2)]  # Create a list with the resized image and box

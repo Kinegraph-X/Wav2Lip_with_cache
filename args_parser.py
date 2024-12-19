@@ -11,7 +11,7 @@ class Args_parser():
 		"crop" : [0, -1, 0, -1],
 		"img_size" : 96,
 		"face_det_batch_size" : 16,
-		"pads" : [0, 10, 0, 0],
+		"pads" : [0, 0, 0, 0],
 		"nosmooth" : False,
 		"warm_start" : False,
 		"checkpoint_path" : "checkpoint_path/wav2lip_gan.pth",
