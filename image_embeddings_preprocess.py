@@ -51,7 +51,7 @@ def start(full_frames):
 		gen = datagen_images.start(full_frames.copy())
 
 		for i, (img_batch) in enumerate(tqdm(gen, total=len(full_frames))):
-			print(f'index is {i}')
+			# print(f'index is {i}')
 			if i == 0:
 				# model = load_model(args_parser.params["checkpoint_path"])
 				model = load_model(args_parser.params["checkpoint_path"], args_parser.params['video_file_path'])

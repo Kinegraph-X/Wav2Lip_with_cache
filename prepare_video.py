@@ -67,7 +67,7 @@ def start():
 			full_frames.append(frame)
 
 		end_time = time.perf_counter()
-		print (f'Effective VideoCapure took : {end_time - start_time}')
+		print(f'Effective VideoCapure took : {end_time - start_time}')
 
 		print("Frames file is not cached")
 		cache.write_npy(args_parser.params['video_file_path'], 'raw_frames', full_frames)

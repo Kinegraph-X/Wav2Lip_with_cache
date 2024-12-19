@@ -34,7 +34,7 @@ wget "https://www.adrianbulat.com/downloads/python-fan/s3fd-619a316812.pth" -O "
 # I'm providing a version of the cached embeddings corresponding to the video in the repo (this speeds up the first run)
 mkdir /content/Wav2Lip_with_cache/cache
 mkdir /content/Wav2Lip_with_cache/cache/face_detection
-wget "http://fluoman.net/kinegraphx_avatar/cache/face_detection/953009f41ba4c8cb1b0563d5a16c5149_face_detection_master.npy" -O "/content/Wav2Lip_with_cache/cache/face_detection/953009f41ba4c8cb1b0563d5a16c5149_face_detection_master.npy"
+wget "http://fluoman.net/kinegraphx_avatar/cache/face_detection/5769f371ec2ae1f7fd3e1a7b637c402a_raw_frames_master.npy" -O "/content/Wav2Lip_with_cache/cache/face_detection/5769f371ec2ae1f7fd3e1a7b637c402a_raw_frames_master.npy"
 
 # Maybe you don't have it installed... Yet...
 apt install ffmpeg
