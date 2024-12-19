@@ -55,7 +55,7 @@ def handle_get():
 		return "File not found.", 404
 
 	if request.args.get("next_batch"):
-		start_time = 0
+		start_time = time.perf_counter()
 		print('polling request received')
 		return long_polling()
 

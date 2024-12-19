@@ -57,7 +57,8 @@ def handle_chunked_audio(request, audio_chunk):
 
 @app.route('/', methods=['GET'])
 def handle_get():
-	
+	global start_time
+
 	args_parser.parse(request)
 	if request.args.get('path'):
 		file_path = args_parser.params["path"]
@@ -66,7 +67,8 @@ def handle_get():
 		return "File not found.", 404
 
 	if request.args.get("next_batch"):
-		# print('polling request received')
+		start_time = time.perf_counter()
+		print('polling request received')
 		return long_polling()
 
 	return "Request received", 200
@@ -102,7 +104,7 @@ def handle_post():
 	return "Invalid Request", 400
 
 def long_polling():
-	global sent_frames, current_frame_count
+	global sent_frames, current_frame_count, start_time
 	""" long polling for video chunks."""
 	timeout = 30
 	start_time = time.time()
