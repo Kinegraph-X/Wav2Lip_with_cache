@@ -9,5 +9,5 @@ checkpoint_path/*.*
 face_detection/detection/sfd/s3fd.pth
 media/*.*
 
-!media/Avatar_Small_Master.mp4
+!media/Avatar_Small_Online.mp4
 !readme.md
