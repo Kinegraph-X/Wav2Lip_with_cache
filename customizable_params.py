@@ -16,5 +16,5 @@ class HParams:
 
 # Default hyperparameters
 customizable_params = HParams(
-	static_video_file_path="media/Avatar_Small_Master.mp4"
+	static_video_file_path="media/Avatar_Small_Online.mp4"
 )
