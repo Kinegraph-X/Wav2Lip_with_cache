@@ -32,9 +32,10 @@ wget -O /content/Wav2Lip_with_cache/checkpoint_path/wav2lip_gan.pth "https://hug
 wget "https://www.adrianbulat.com/downloads/python-fan/s3fd-619a316812.pth" -O "/content/Wav2Lip_with_cache/face_detection/detection/sfd/s3fd.pth"
 
 # I'm providing a version of the cached embeddings corresponding to the video in the repo (this speeds up the first run)
+# This file is of no use if you're planning to provide your own "base video"
 mkdir /content/Wav2Lip_with_cache/cache
 mkdir /content/Wav2Lip_with_cache/cache/face_detection
-wget "http://fluoman.net/kinegraphx_avatar/cache/face_detection/5769f371ec2ae1f7fd3e1a7b637c402a_raw_frames_master.npy" -O "/content/Wav2Lip_with_cache/cache/face_detection/5769f371ec2ae1f7fd3e1a7b637c402a_raw_frames_master.npy"
+wget "http://fluoman.net/kinegraphx_avatar/cache/41d0b8d69a837a7d8c420031d8959a9a_face_detection_master.npy" -O "/content/Wav2Lip_with_cache/cache/face_detection/41d0b8d69a837a7d8c420031d8959a9a_face_detection_master.npy"
 
 # Maybe you don't have it installed... Yet...
 apt install ffmpeg
