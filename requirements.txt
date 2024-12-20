@@ -13,4 +13,4 @@ pyngrok
 nest_asyncio
 python-dotenv
 flask
-brotlipy
+zstandard
