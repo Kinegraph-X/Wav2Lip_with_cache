@@ -4,6 +4,7 @@ from flask import Flask
 from pyngrok import ngrok  # Use pyngrok for a simpler API
 import os
 from dotenv import load_dotenv
+import brotli
 
 from flask import Flask, request, send_file, Response
 import wave
@@ -134,10 +135,16 @@ def long_polling():
 
 	data = processed_frames[current_cursor:]
 	serialized_chunk = serialize_chunk(data.shape, current_cursor, data)
+	compressed_data = brotli.compress(serialized_chunk)
+
+	print(f'time spent while polling {time.perf_counter() - start_time} ({time.time_ns() / 1000000.})')
 	return Response(
-		serialized_chunk,
+		compressed_data,
 		content_type='application/octet-stream',
-		headers={'Content-Disposition': 'attachment; filename="chunk.bin"'}
+		headers={
+			'Content-Encoding': 'br',
+			'Content-Disposition': 'attachment; filename="chunk.bin"'
+		}
 	)
 
 async def main():
