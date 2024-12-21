@@ -71,3 +71,7 @@ Without tunnelling (appropriate for dedicated VM's and local usage)
 ```shell
 cd Wav2Lip_with_cache && python daemon.py
 ```
+
+## Credits
+
+Heavily forked from [the original Wav2Lip repo](https://github.com/Rudrabha/Wav2Lip)
