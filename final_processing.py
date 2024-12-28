@@ -4,7 +4,7 @@ import datagen_audio
 from hparams import hparams
 from models.wav2lip_cache import Wav2LipCache
 from models.wav2lip_compute_embeddings import Wav2Lip
-
+from logger import logger
 from args_parser import args_parser
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -27,7 +27,7 @@ def _load(checkpoint_path):
 
 def load_model(path, video_path):
 	model = Wav2Lip(video_path)
-	print("Load checkpoint from: {}".format(path))
+	logger.info("Load checkpoint from: {}".format(path))
 	checkpoint = _load(path)
 	s = checkpoint["state_dict"]
 	new_s = {}
@@ -50,7 +50,7 @@ def start(full_frames, mel_chunks, face_detect_results, streamed = False):
 		if i == 0:
 			# model = load_model(args_parser.params["checkpoint_path"])
 			model = load_model(hparams.checkpoint_path, args_parser.params['video_file_path'])
-			print ("Model loaded")
+			logger.info("Model loaded")
 			if not streamed:
 				frame_h, frame_w = full_frames[0].shape[:-1]
 				out = cv2.VideoWriter('temp/result.avi', 
@@ -87,4 +87,4 @@ def start(full_frames, mel_chunks, face_detect_results, streamed = False):
 		command = 'ffmpeg -nostdin -y -i {} -i {} -strict -2 -q:v 1 {}'.format(hparams.media_folder + args_parser.params["audio_filename"], 'temp/result.avi', output_path)
 		# subprocess.call(command, shell=platform.system() != 'Windows', stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
 		subprocess.call(command, shell=platform.system() != 'Windows', stderr=subprocess.STDOUT)
-		print(f'Video file saved to {output_path}')
+		logger.info(f'Video file saved to {output_path}')

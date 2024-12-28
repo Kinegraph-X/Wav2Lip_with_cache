@@ -1,7 +1,7 @@
 import custom_libs.audio as audio
 from hparams import hparams
 import time
-
+from logger import logger
 from args_parser import args_parser
 
 """
@@ -22,7 +22,7 @@ def start(full_frames):
 	# wav = audio.load_audio(args_parser.params["audio_filename"], 16000)
 	# wav = audio.torch_load_audio(args_parser["audio_filename"], 16000)
 	end_time = time.perf_counter()
-	print(f'Audio loading took {end_time - init_time}')
+	logger.debug(f'Audio loading took {end_time - init_time}')
 
 	init_time = time.perf_counter()
 	try:
@@ -46,7 +46,7 @@ def start(full_frames):
 		mel_chunks.append(mel[:, start_idx : start_idx + mel_step_size])
 		i += 1
 
-	print("Length of mel chunks: {}".format(len(mel_chunks)))
+	logger.debug("Length of mel chunks: {}".format(len(mel_chunks)))
 
 	# full_frames = full_frames[:len(mel_chunks)]
 

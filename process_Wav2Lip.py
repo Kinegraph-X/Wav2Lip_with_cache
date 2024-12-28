@@ -8,6 +8,7 @@ import image_embeddings_preprocess
 import final_processing
 import time
 from models.wav2lip_cache import Wav2LipCache
+from logger import logger
 from args_parser import args_parser
 
 warm_start = {
@@ -22,15 +23,7 @@ new_batch_available = threading.Event()
 processing_ended = threading.Event()
 
 def save_pred_incrementally(pred):
-		"""
-		if os.path.exists(hparams.temp_pred_file_path):
-				# Load existing file and append new data
-				existing_data = np.load(hparams.temp_pred_file_path)
-				new_data = np.concatenate((existing_data, pred), axis=0)
-		else:
-				# Start a new file
-				new_data = pred
-		"""
+
 		video_path = args_parser.params['video_file_path']
 		cache = Wav2LipCache('cache/raw_frames')
 		cached_data =  cache.read_npy(video_path, 'raw_frames')
@@ -65,7 +58,7 @@ def process_warmed_up(streamed = False):
 				save_pred_incrementally(pred)
 
 		end_time = time.perf_counter()
-		print(f'Total script took {end_time - start_time}')
+		logger.debug(f'Total script took {end_time - start_time}')
 		return "Processing succeeded"
 		# """
 
@@ -96,7 +89,7 @@ def process_cold_start(streamed = False):
 					save_pred_incrementally(pred)
 
 		end_time = time.perf_counter()
-		print(f'Total script took {end_time - start_time}')
+		logger.debug(f'Total script took {end_time - start_time}')
 		return "Processing succeeded"
 		# """
 

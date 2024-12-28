@@ -14,6 +14,7 @@ from process_Wav2Lip import process, new_batch_available, status, processing_end
 from args_parser import args_parser
 from hparams import hparams
 from serializer import serialize_chunk
+from logger import logger
 import warnings
 
 warnings.simplefilter(action='ignore', category=FutureWarning)
@@ -43,7 +44,7 @@ def handle_chunked_audio(request, audio_chunk):
 			print(f'Wavefile removed')
 			os.remove(file_path)
 		"""
-		print(f'Wavefile created : {request.headers.get("X-Audio-Filename")}')
+		logger.info(f'Wavefile created : {request.headers.get("X-Audio-Filename")}')
 		wf = wave.open(file_path, 'wb')
 		wf.setnchannels(int(request.headers.get("X-Channels")))
 		wf.setsampwidth(2)  # 16-bit PCM
@@ -69,7 +70,7 @@ def handle_get():
 
 	if request.args.get("next_batch"):
 		start_time = time.perf_counter()
-		print('polling request received')
+		logger.debug('polling request received')
 		return long_polling()
 
 	return "Request received", 200
@@ -129,7 +130,7 @@ def long_polling():
 
 	# print(processed_frames.shape)
 	current_cursor = sent_frames
-	print(f'new batch yielded, sneding response for frame idx : {current_cursor}')
+	logger.info(f'new batch yielded, sending response for frame idx : {current_cursor}')
 	sent_frames = len(processed_frames)
 	new_batch_available.clear()
 
@@ -137,7 +138,7 @@ def long_polling():
 	serialized_chunk = serialize_chunk(data.shape, current_cursor, data)
 	compressed_data = brotli.compress(serialized_chunk)
 
-	print(f'time spent while polling {time.perf_counter() - start_time} ({time.time_ns() / 1000000.})')
+	logger.debug(f'time spent while polling {time.perf_counter() - start_time} ({time.time_ns() / 1000000.})')
 	return Response(
 		compressed_data,
 		content_type='application/octet-stream',
@@ -154,21 +155,21 @@ async def main():
     flask_task = asyncio.create_task(asyncio.to_thread(app.run, host="0.0.0.0", port=upload_port, debug=False, use_reloader=False))
 
     # Start Ngrok tunnel
-    print("Starting Ngrok tunnel...")
+    logger.info("Starting Ngrok tunnel...")
     ngrok_auth_token = os.getenv("NGROK_AUTH_TOKEN")
     if ngrok_auth_token:
         ngrok.set_auth_token(ngrok_auth_token)
 
     public_url = ngrok.connect(upload_port).public_url
-    print(f"Ngrok tunnel started! Public URL: {public_url}")
+    logger.ingo(f"Ngrok tunnel started! Public URL: {public_url}")
 
     # Wait for server to run until interrupted
     try:
         await flask_task
     except asyncio.CancelledError:
-        print("\nServer interrupted by user.")
+        logger.info("\nServer interrupted by user.")
     finally:
-        print("Shutting down Flask server and Ngrok tunnel...")
+        logger.info("Shutting down Flask server and Ngrok tunnel...")
         ngrok.disconnect(public_url)
         ngrok.kill()
 		
@@ -181,7 +182,7 @@ if __name__ == "__main__":
     try:
         loop.run_until_complete(upload_task)  # Run the event loop until the task completes
     except KeyboardInterrupt:
-        print("\nCaught KeyboardInterrupt, shutting down gracefully.")
+        logger.info("\nCaught KeyboardInterrupt, shutting down gracefully.")
         # tasks = asyncio.all_tasks(loop)
         """
         for task in tasks:
@@ -191,6 +192,6 @@ if __name__ == "__main__":
         upload_task.cancel()  # Attempt to cancel the task gracefully
         # loop.run_until_complete(asyncio.gather(*tasks, return_exceptions=True))
         # loop.close()
-        print("Cleanup complete.")
+        logger.info("Cleanup complete.")
     except Exception as e:
-        print(f"An error occurred: {e}")
+        logger.error(f"An error occurred: {e}")

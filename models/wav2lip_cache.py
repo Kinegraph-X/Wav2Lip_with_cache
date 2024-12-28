@@ -2,6 +2,7 @@ import os
 import torch
 import numpy as np
 import hashlib
+from logger import logger
 
 class Wav2LipCache:
     def __init__(self, cache_dir):
@@ -28,7 +29,7 @@ class Wav2LipCache:
         """Save face embeddings to the cache."""
         cache_path = self._get_cache_path(video_path, "embeddings", idx)
         torch.save(embeddings, cache_path)
-        print(f"Embeddings saved to {cache_path}")
+        logger.info(f"Embeddings saved to {cache_path}")
 
     def load_embeddings(self, video_path, idx = "master"):
         """Load face embeddings from the cache."""
@@ -61,7 +62,7 @@ class Wav2LipCache:
         # fp = open(cache_path, "w")
         np.save(cache_path, data)
         # fp.close()
-        print(f"{type} saved to {cache_path}")
+        logger.info(f"{type} saved to {cache_path}")
 
 # Example usage
 def cache_face_encoder_output(model, video_frames, video_path):

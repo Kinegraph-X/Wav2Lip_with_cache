@@ -1,6 +1,7 @@
 import os, cgi
 from urllib.parse import urlparse, parse_qs
 from customizable_params import customizable_params
+from logger import logger
 
 class Args_parser():
 	media_folder = "media/"
@@ -47,7 +48,7 @@ class Args_parser():
 						# Save the file
 						with open(f"{self.media_folder}{filename}", 'wb') as f:
 							f.write(file_data)
-						print(f"File '{filename}' received and saved.")
+						logger.info(f"File '{filename}' received and saved.")
 					else:
 						if form.getvalue(key) == 'True':
 							self.params[key] = True

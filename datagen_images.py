@@ -1,7 +1,7 @@
 import cv2, numpy as np
 from models.wav2lip_cache import Wav2LipCache
 from hparams import hparams
-
+from logger import logger
 from args_parser import args_parser
 
 """
@@ -38,7 +38,7 @@ def start(frames):
 	cache = Wav2LipCache("cache/face_detection")
 
 	if cache.is_cached(args_parser.params['video_file_path'], "face_detection"):
-		print("Face_detection file is cached")
+		logger.info("Face_detection file is cached")
 		face_det_results = cache.read_npy(args_parser.params['video_file_path'], "face_detection")
 
 	else:

@@ -5,6 +5,7 @@ from torch import nn
 from torch.nn import functional as F
 import math
 from models.wav2lip_cache import Wav2LipCache
+from logger import logger
 
 from .conv import Conv2dTranspose, Conv2d, nonorm_Conv2d
 
@@ -92,10 +93,10 @@ class Wav2Lip(nn.Module):
         self.is_cached = self.cache.is_cached(video_path, "embeddings")
         if (self.is_cached):
             self.cached_data =  self.cache.load_embeddings(video_path)
-            print(f'embeddings size is {len(self.cached_data)}')
+            logger.debug(f'embeddings size is {len(self.cached_data)}')
 
     def forward(self, audio_sequences, idx, batch_size): # , last_idx):
-        print(f'Computing batch #{idx}')
+        logger.info(f'Computing batch #{idx}')
         B = audio_sequences.size(0)
         # Use precomputed embeddings if available
         if self.is_cached:
@@ -125,8 +126,8 @@ class Wav2Lip(nn.Module):
             try:
                 x = torch.cat((x, feats[-1]), dim=1)
             except Exception as e:
-                print(x.size())
-                print(feats[-1].size())
+                logger.error(x.size())
+                logger.error(feats[-1].size())
                 raise e
             
             feats.pop()

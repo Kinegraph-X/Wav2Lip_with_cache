@@ -4,7 +4,7 @@ import datagen_images
 from hparams import hparams
 from models.wav2lip_cache import Wav2LipCache
 from models.wav2lip_image_embeddings import Wav2Lip
-
+from logger import logger
 from args_parser import args_parser
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -27,7 +27,7 @@ def _load(checkpoint_path):
 
 def load_model(path, video_path):
 	model = Wav2Lip(video_path)
-	print("Load checkpoint from: {}".format(path))
+	logger.info("Load checkpoint from: {}".format(path))
 	checkpoint = _load(path)
 	s = checkpoint["state_dict"]
 	new_s = {}
@@ -43,10 +43,10 @@ def start(full_frames):
 
 	cache = Wav2LipCache('cache/embeddings')
 	if cache.is_cached(args_parser.params['video_file_path'], "embeddings"):
-		print("Will use precomputed embeddings...")
+		logger.info("Will use precomputed embeddings...")
 		return
 	else:
-		print("No precomputed embeddings found. Proceeding without cache.")
+		logger.info("No precomputed embeddings found. Proceeding without cache.")
 
 		gen = datagen_images.start(full_frames.copy())
 
@@ -55,7 +55,7 @@ def start(full_frames):
 			if i == 0:
 				# model = load_model(args_parser.params["checkpoint_path"])
 				model = load_model(args_parser.params["checkpoint_path"], args_parser.params['video_file_path'])
-				print ("Model loaded")
+				logger.info ("Model loaded")
 
 			img_batch = torch.FloatTensor(np.transpose(img_batch, (0, 3, 1, 2))).to(device)
 

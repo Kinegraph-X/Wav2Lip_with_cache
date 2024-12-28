@@ -7,6 +7,7 @@ from process_Wav2Lip import process, new_batch_available, status, processing_end
 from args_parser import args_parser
 from hparams import hparams
 from serializer import serialize_chunk
+from logger import logger
 import warnings
 
 warnings.simplefilter(action='ignore', category=FutureWarning)
@@ -32,7 +33,7 @@ def handle_chunked_audio(request, audio_chunk):
 			print(f'Wavefile removed')
 			os.remove(file_path)
 		"""
-		print(f'Wavefile created : {request.headers.get("X-Audio-Filename")}')
+		logger.info(f'Wavefile created : {request.headers.get("X-Audio-Filename")}')
 		wf = wave.open(file_path, 'wb')
 		wf.setnchannels(int(request.headers.get("X-Channels")))
 		wf.setsampwidth(2)  # 16-bit PCM
@@ -57,8 +58,11 @@ def handle_get():
 
 	if request.args.get("next_batch"):
 		start_time = time.perf_counter()
-		print('polling request received')
-		return long_polling()
+		logger.info('polling request received')
+		try:
+			return long_polling()
+		except Exception as e:
+			return f'Server Exception while processing polling request : {e}', 200
 
 	return "Request received", 200
 
@@ -83,6 +87,8 @@ def handle_post():
 			return f"Received chunk: {timestamp}", 200
 	elif timestamp == 'EOF':
 		wf = None
+		processing_ended.clear()
+		new_batch_available.clear()
 		sent_frames = 0
 		status["current_frame_count"] = 0
 		status["processed_frames"] = None
@@ -102,23 +108,23 @@ def long_polling():
 		processing_ended.clear()
 		return 'processing_ended', 200, {"Content-Type": "text/plain"}
 
-	print(f'starting while loop {time.perf_counter() - start_time} ({time.time_ns() / 1000000.})')
+	logger.debug(f'starting while loop {time.perf_counter() - start_time} ({time.time_ns() / 1000000.})')
 	while not new_batch_available.is_set():
 		if time.time() - polling_start_time < timeout:
 			time.sleep(.1)
 		else:
 			return 'long_polling_timeout', 200, {"Content-Type": "text/plain"}
 
-	print(f'time spent while waiting for new batch {time.perf_counter() - start_time} ({time.time_ns() / 1000000.})')
-	# processed_frames = np.load(hparams.temp_pred_file_path)
+	logger.debug(f'time spent while waiting for new batch {time.perf_counter() - start_time} ({time.time_ns() / 1000000.})')
+
 	processed_frames = status["processed_frames"]
-	# print(f'{status["current_frame_count"]} {len(processed_frames)}')
+
 	if status["current_frame_count"] == len(processed_frames):
 		processing_ended.set()
 
 	# print(processed_frames.shape)
 	current_cursor = sent_frames
-	print(f'new batch yielded, sending response for frame idx : {current_cursor}')
+	logger.info(f'new batch yielded, sending response for frame idx : {current_cursor}')
 	sent_frames = len(processed_frames)
 	new_batch_available.clear()
 
@@ -128,7 +134,7 @@ def long_polling():
 	cctx = zstd.ZstdCompressor(level=3)
 	compressed_data = cctx.compress(serialized_chunk)
 
-	print(f'time spent while polling {time.perf_counter() - start_time} ({time.time_ns() / 1000000.})')
+	logger.debug(f'time spent while polling {time.perf_counter() - start_time} ({time.time_ns() / 1000000.})')
 	return Response(
 		compressed_data,
 		content_type='application/octet-stream',

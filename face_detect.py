@@ -3,11 +3,11 @@ import numpy as np
 from tqdm import tqdm
 from models.wav2lip_cache import Wav2LipCache
 from hparams import hparams
-
+from logger import logger
 from args_parser import args_parser
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
-print('Using {} for inference.'.format(device))
+logger.info('Using {} for inference.'.format(device))
 
 """
 # mock args for now...
@@ -38,12 +38,12 @@ def start(images):
 	cache = Wav2LipCache("cache/face_detection")
 	
 	if cache.is_cached(args_parser.params['video_file_path'], "face_detection"):
-		print("Face_detection file is cached")
+		logger.info("Face_detection file is cached")
 		results = cache.read_npy(args_parser.params['video_file_path'], "face_detection")
-		print(f"loaded images length is {len(images)}")
+		logger.debug(f"loaded images length is {len(images)}")
 
 	else:
-		print(f"computed images length is {len(images)}. Starting face detection...")
+		logger.debug(f"computed images length is {len(images)}. Starting face detection...")
 
 		detector = face_detection.FaceAlignment(face_detection.LandmarksType._2D, 
 												flip_input=False, device=device)
@@ -61,7 +61,7 @@ def start(images):
 					raise RuntimeError('Image too big to run face detection on GPU. Please use the --resize_factor argument')
 				# batch_size //= 2
 				# print('Recovering from OOM error; New batch size: {}'.format(batch_size))
-				print('Recovering from OOM error; It\'s frequently related to available memory being too low. Aborting...')
+				logger.error('Recovering from OOM error; It\'s frequently related to available memory being too low. Aborting...')
 				return results
 			break
 
@@ -83,7 +83,7 @@ def start(images):
 		start_time = time.perf_counter()
 		if not args_parser.params["nosmooth"]: boxes = get_smoothened_boxes(boxes, T=5)
 		end_time = time.perf_counter()
-		print(f'Smoothing took {end_time - start_time}')
+		logger.debug(f'Smoothing took {end_time - start_time}')
 		
 		# results = [[image[y1: y2, x1:x2], (y1, y2, x1, x2)] for image, (x1, y1, x2, y2) in zip(images, boxes)]
 		
@@ -105,7 +105,7 @@ def start(images):
 
 		del detector
 
-		print("Face_detection file is not cached")
+		logger.info("Face_detection file is not cached")
 		cache.write_npy(args_parser.params['video_file_path'], 'face_detection', results)
 
 	return results 
