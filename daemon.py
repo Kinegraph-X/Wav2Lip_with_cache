@@ -70,32 +70,36 @@ def handle_get():
 def handle_post():
 	""" POST requests are for chunked audio data."""
 	global wf, streamed, sent_frames
-	# """
-	args_parser.parse(request)
 
-	timestamp = request.headers.get("X-Audio-Chunk-Timestamp")
-	content_length = request.content_length or 0
+	try:
+		# """
+		args_parser.parse(request)
 
-	if not request.headers.get("X-Audio-Filename"):
-		return "Audio file not received, aborting...", 200
+		timestamp = request.headers.get("X-Audio-Chunk-Timestamp")
+		content_length = request.content_length or 0
 
-	args_parser.params["audio_filename"] = request.headers.get("X-Audio-Filename")
-	if timestamp and timestamp != 'EOF':
-		streamed = True
-		if content_length > 0:
-			handle_chunked_audio(request, request.data)
-			return f"Received chunk: {timestamp}", 200
-	elif timestamp == 'EOF':
-		wf = None
-		processing_ended.clear()
-		new_batch_available.clear()
-		sent_frames = 0
-		status["current_frame_count"] = 0
-		status["processed_frames"] = None
-		process(streamed)
-		return f'Completed processing new audio file: {request.headers.get("X-Audio-Filename")}', 200
+		if not request.headers.get("X-Audio-Filename"):
+			return "Audio file not received, aborting...", 200
 
-	# """
+		args_parser.params["audio_filename"] = request.headers.get("X-Audio-Filename")
+		if timestamp and timestamp != 'EOF':
+			streamed = True
+			if content_length > 0:
+				handle_chunked_audio(request, request.data)
+				return f"Received chunk: {timestamp}", 200
+		elif timestamp == 'EOF':
+			wf = None
+			processing_ended.clear()
+			new_batch_available.clear()
+			sent_frames = 0
+			status["current_frame_count"] = 0
+			status["processed_frames"] = None
+			process(streamed)
+			return f'Completed processing new audio file: {request.headers.get("X-Audio-Filename")}', 200
+
+		# """
+	except Exception as e:
+		logger.error(f'Unknown error serverside : {e}')
 	return "Invalid Request", 400
 
 def long_polling():
@@ -106,6 +110,7 @@ def long_polling():
 
 	if processing_ended.is_set():
 		processing_ended.clear()
+		logger.info('End of processing sent to client')
 		return 'processing_ended', 200, {"Content-Type": "text/plain"}
 
 	logger.debug(f'starting while loop {time.perf_counter() - start_time} ({time.time_ns() / 1000000.})')
