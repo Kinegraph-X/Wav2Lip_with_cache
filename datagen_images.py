@@ -2,7 +2,7 @@ import cv2, numpy as np
 from models.wav2lip_cache import Wav2LipCache
 from hparams import hparams
 from logger import logger
-from args_parser import args_parser
+from http_args_parser import args_parser
 
 """
 # mock args for now...

@@ -9,7 +9,7 @@ import final_processing
 import time
 from models.wav2lip_cache import Wav2LipCache
 from logger import logger
-from args_parser import args_parser
+from http_args_parser import args_parser
 
 warm_start = {
 
@@ -39,10 +39,13 @@ def save_pred_incrementally(pred):
 		# np.save(hparams.temp_pred_file_path, new_data)
 		new_batch_available.set()
 
-def process_warmed_up(streamed = False):
+def process_warmed_up(streamed = False, avatar_type = ''):
 		global current_frame_count
 		# """
 		start_time = time.perf_counter()
+
+		if not avatar_type:
+			return "Processing cancelled"
 
 		# mel spectrogram may fail is the file is well formatted but too short
 		try:
@@ -51,7 +54,7 @@ def process_warmed_up(streamed = False):
 			return e.args
 		
 		status["current_frame_count"] = len(mel_chunks)
-		preds = final_processing.start(warm_start["frames"], mel_chunks, warm_start["face_detect_results"], streamed)
+		preds = final_processing.start(warm_start["frames"], mel_chunks, warm_start["face_detect_results"], streamed, avatar_type)
 
 		if streamed:
 			for pred in preds:
@@ -62,17 +65,21 @@ def process_warmed_up(streamed = False):
 		return "Processing succeeded"
 		# """
 
-def process_cold_start(streamed = False):
+def process_cold_start(streamed = False, avatar_type = ''):
 		global status
-		# """
+
 		start_time = time.perf_counter()
-		frames = prepare_video.start()
+
+		if not avatar_type:
+			return "Processing cancelled"
+		
+		frames = prepare_video.start(avatar_type)
 		warm_start["frames"] = frames
-		face_detect_results = face_detect.start(frames)
+		face_detect_results = face_detect.start(frames, avatar_type)
 		if not len(face_detect_results):
 			return "processing aborted due to an error"
 		warm_start["face_detect_results"] = face_detect_results
-		image_embeddings_preprocess.start(frames)
+		image_embeddings_preprocess.start(frames, avatar_type)
 
 		# mel spectrogram may fail is the file is well formatted but too short
 		try:
@@ -81,7 +88,7 @@ def process_cold_start(streamed = False):
 			return e.args
 		
 		status["current_frame_count"] = len(mel_chunks)
-		preds = final_processing.start(frames, mel_chunks, face_detect_results, streamed)
+		preds = final_processing.start(frames, mel_chunks, face_detect_results, streamed, avatar_type)
 
 		if streamed:
 			for pred in preds:
@@ -90,14 +97,14 @@ def process_cold_start(streamed = False):
 
 		end_time = time.perf_counter()
 		logger.debug(f'Total script took {end_time - start_time}')
-		return "Processing succeeded"
-		# """
 
-def process(streamed = False):
+		return "Processing succeeded"
+
+def process(streamed = False, avatar_type = ''):
 		if os.path.exists(hparams.temp_pred_file_path):
 			os.remove(hparams.temp_pred_file_path)
 
 		if (len(warm_start) > 1):
-				return process_warmed_up(streamed)
+				return process_warmed_up(streamed, avatar_type)
 		else:
-				return process_cold_start(streamed)
+				return process_cold_start(streamed, avatar_type)

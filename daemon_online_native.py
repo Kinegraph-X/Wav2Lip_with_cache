@@ -6,7 +6,7 @@ import os
 import logging
 from dotenv import load_dotenv
 
-from args_parser import args_parser
+from http_args_parser import args_parser
 
 from process_Wav2Lip import process
 

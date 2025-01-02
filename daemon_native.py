@@ -2,7 +2,7 @@
 import wave
 import numpy as np
 from http.server import HTTPServer, BaseHTTPRequestHandler
-from args_parser import args_parser
+from http_args_parser import args_parser
 
 from process_Wav2Lip import process
 

@@ -4,7 +4,7 @@ import wave
 import os, time
 import numpy as np
 from process_Wav2Lip import process, new_batch_available, status, processing_ended
-from args_parser import args_parser
+from http_args_parser import args_parser as http_args_parser
 from hparams import hparams
 from serializer import serialize_chunk
 from logger import logger
@@ -49,9 +49,9 @@ def handle_chunked_audio(request, audio_chunk):
 @app.route('/', methods=['GET'])
 def handle_get():
 	global start_time
-	args_parser.parse(request)
+	http_args_parser.parse(request)
 	if request.args.get('path'):
-		file_path = args_parser.params["path"]
+		file_path = http_args_parser.params["path"]
 		if os.path.exists(file_path):
 			return send_file(file_path, mimetype="application/octet-stream")
 		return "File not found.", 404
@@ -73,29 +73,33 @@ def handle_post():
 
 	try:
 		# """
-		args_parser.parse(request)
+		http_args_parser.parse(request)
 
 		timestamp = request.headers.get("X-Audio-Chunk-Timestamp")
+		avatar_type = request.headers.get("X-Avatar-Type")
 		content_length = request.content_length or 0
 
 		if not request.headers.get("X-Audio-Filename"):
 			return "Audio file not received, aborting...", 200
 
-		args_parser.params["audio_filename"] = request.headers.get("X-Audio-Filename")
+		http_args_parser.params["audio_filename"] = request.headers.get("X-Audio-Filename")
 		if timestamp and timestamp != 'EOF':
 			streamed = True
 			if content_length > 0:
 				handle_chunked_audio(request, request.data)
 				return f"Received chunk: {timestamp}", 200
 		elif timestamp == 'EOF':
-			wf = None
-			processing_ended.clear()
-			new_batch_available.clear()
-			sent_frames = 0
-			status["current_frame_count"] = 0
-			status["processed_frames"] = None
-			process(streamed)
-			return f'Completed processing new audio file: {request.headers.get("X-Audio-Filename")}', 200
+			if (avatar_type):
+				wf = None
+				processing_ended.clear()
+				new_batch_available.clear()
+				sent_frames = 0
+				status["current_frame_count"] = 0
+				status["processed_frames"] = None
+				process(streamed, avatar_type)
+				return f'Completed processing new audio file: {request.headers.get("X-Audio-Filename")}', 200
+			else:
+				return f'End of file reached but no avatar type sent : no processing shall be started'
 
 		# """
 	except Exception as e:

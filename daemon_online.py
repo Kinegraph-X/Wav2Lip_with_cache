@@ -11,7 +11,7 @@ import wave
 import os, time
 import numpy as np
 from process_Wav2Lip import process, new_batch_available, status, processing_ended
-from args_parser import args_parser
+from http_args_parser import args_parser
 from hparams import hparams
 from serializer import serialize_chunk
 from logger import logger

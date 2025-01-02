@@ -4,7 +4,7 @@ from tqdm import tqdm
 from models.wav2lip_cache import Wav2LipCache
 from hparams import hparams
 from logger import logger
-from args_parser import args_parser
+from http_args_parser import args_parser
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 logger.info('Using {} for inference.'.format(device))
@@ -33,13 +33,14 @@ def get_smoothened_boxes(boxes, T):
 		boxes[i] = np.mean(window, axis=0)
 	return boxes
 
-def start(images):
+def start(images, avatar_type):
 	
 	cache = Wav2LipCache("cache/face_detection")
+	video_file_path = args_parser.params[avatar_type + "_video_file_path"]
 	
-	if cache.is_cached(args_parser.params['video_file_path'], "face_detection"):
+	if cache.is_cached(video_file_path, "face_detection"):
 		logger.info("Face_detection file is cached")
-		results = cache.read_npy(args_parser.params['video_file_path'], "face_detection")
+		results = cache.read_npy(video_file_path, "face_detection")
 		logger.debug(f"loaded images length is {len(images)}")
 
 	else:
@@ -106,6 +107,6 @@ def start(images):
 		del detector
 
 		logger.info("Face_detection file is not cached")
-		cache.write_npy(args_parser.params['video_file_path'], 'face_detection', results)
+		cache.write_npy(video_file_path, 'face_detection', results)
 
 	return results 

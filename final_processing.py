@@ -5,7 +5,7 @@ from hparams import hparams
 from models.wav2lip_cache import Wav2LipCache
 from models.wav2lip_compute_embeddings import Wav2Lip
 from logger import logger
-from args_parser import args_parser
+from http_args_parser import args_parser
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
@@ -38,8 +38,9 @@ def load_model(path, video_path):
 	model = model.to(device)
 	return model.eval()
 
-def start(full_frames, mel_chunks, face_detect_results, streamed = False):
+def start(full_frames, mel_chunks, face_detect_results, streamed = False, avatar_type = ''):
 	batch_size = hparams.video_batch_size
+	video_file_path = args_parser.params[avatar_type + "_video_file_path"]
 
 	# for i, (mel_batch) in enumerate(tqdm(gen, total=int(np.ceil(float(len(mel_chunks))/batch_size)))):
 	total_batches = int(np.ceil(float(len(mel_chunks)) / batch_size))
@@ -49,7 +50,7 @@ def start(full_frames, mel_chunks, face_detect_results, streamed = False):
 		
 		if i == 0:
 			# model = load_model(args_parser.params["checkpoint_path"])
-			model = load_model(hparams.checkpoint_path, args_parser.params['video_file_path'])
+			model = load_model(hparams.checkpoint_path, video_file_path)
 			logger.info("Model loaded")
 			if not streamed:
 				frame_h, frame_w = full_frames[0].shape[:-1]

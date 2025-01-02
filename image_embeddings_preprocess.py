@@ -5,7 +5,7 @@ from hparams import hparams
 from models.wav2lip_cache import Wav2LipCache
 from models.wav2lip_image_embeddings import Wav2Lip
 from logger import logger
-from args_parser import args_parser
+from http_args_parser import args_parser
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
@@ -38,11 +38,12 @@ def load_model(path, video_path):
 	model = model.to(device)
 	return model.eval()
 
-def start(full_frames):
+def start(full_frames, avatar_type):
 	batch_size = hparams.video_batch_size
+	video_file_path = args_parser.params[avatar_type + "_video_file_path"]
 
 	cache = Wav2LipCache('cache/embeddings')
-	if cache.is_cached(args_parser.params['video_file_path'], "embeddings"):
+	if cache.is_cached(video_file_path, "embeddings"):
 		logger.info("Will use precomputed embeddings...")
 		return
 	else:
@@ -54,7 +55,7 @@ def start(full_frames):
 			# print(f'index is {i}')
 			if i == 0:
 				# model = load_model(args_parser.params["checkpoint_path"])
-				model = load_model(args_parser.params["checkpoint_path"], args_parser.params['video_file_path'])
+				model = load_model(args_parser.params["checkpoint_path"], video_file_path)
 				logger.info ("Model loaded")
 
 			img_batch = torch.FloatTensor(np.transpose(img_batch, (0, 3, 1, 2))).to(device)
