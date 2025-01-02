@@ -40,7 +40,7 @@ def load_model(path, video_path):
 
 def start(full_frames, mel_chunks, face_detect_results, streamed = False, avatar_type = ''):
 	batch_size = hparams.video_batch_size
-	video_file_path = args_parser.params[avatar_type + "_video_file_path"]
+	video_file_path = hparams.media_folder + args_parser.params[avatar_type + "_video_file_path"]
 
 	# for i, (mel_batch) in enumerate(tqdm(gen, total=int(np.ceil(float(len(mel_chunks))/batch_size)))):
 	total_batches = int(np.ceil(float(len(mel_chunks)) / batch_size))

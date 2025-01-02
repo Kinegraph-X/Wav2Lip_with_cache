@@ -1,7 +1,7 @@
 from flask import Flask, request, send_file, Response
 import zstandard as zstd
 import wave
-import os, time
+import os, sys, time
 import numpy as np
 from process_Wav2Lip import process, new_batch_available, status, processing_ended
 from http_args_parser import args_parser as http_args_parser
@@ -103,7 +103,9 @@ def handle_post():
 
 		# """
 	except Exception as e:
-		logger.error(f'Unknown error serverside : {e}')
+		exc_type, exc_obj, exc_tb = sys.exc_info()
+		fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+		logger.error(f'Unknown error serverside : {e}  {exc_type} {fname} {exc_tb.tb_lineno}')
 	return "Invalid Request", 400
 
 def long_polling():

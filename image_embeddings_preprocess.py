@@ -40,7 +40,7 @@ def load_model(path, video_path):
 
 def start(full_frames, avatar_type):
 	batch_size = hparams.video_batch_size
-	video_file_path = args_parser.params[avatar_type + "_video_file_path"]
+	video_file_path = hparams.media_folder + args_parser.params[avatar_type + "_video_file_path"]
 
 	cache = Wav2LipCache('cache/embeddings')
 	if cache.is_cached(video_file_path, "embeddings"):
@@ -49,7 +49,7 @@ def start(full_frames, avatar_type):
 	else:
 		logger.info("No precomputed embeddings found. Proceeding without cache.")
 
-		gen = datagen_images.start(full_frames.copy())
+		gen = datagen_images.start(full_frames.copy(), avatar_type)
 
 		for i, (img_batch) in enumerate(tqdm(gen, total=len(full_frames))):
 			# print(f'index is {i}')

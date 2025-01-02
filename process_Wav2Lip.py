@@ -22,9 +22,9 @@ status = {
 new_batch_available = threading.Event()
 processing_ended = threading.Event()
 
-def save_pred_incrementally(pred):
+def save_pred_incrementally(pred, avatar_type = ''):
 
-		video_path = args_parser.params['video_file_path']
+		video_path = hparams.media_folder + args_parser.params[avatar_type + '_video_file_path']
 		cache = Wav2LipCache('cache/raw_frames')
 		cached_data =  cache.read_npy(video_path, 'raw_frames')
 
@@ -58,7 +58,7 @@ def process_warmed_up(streamed = False, avatar_type = ''):
 
 		if streamed:
 			for pred in preds:
-				save_pred_incrementally(pred)
+				save_pred_incrementally(pred, avatar_type)
 
 		end_time = time.perf_counter()
 		logger.debug(f'Total script took {end_time - start_time}')
@@ -93,7 +93,7 @@ def process_cold_start(streamed = False, avatar_type = ''):
 		if streamed:
 			for pred in preds:
 					# print(f'shape of pred yielded {len(pred)}')
-					save_pred_incrementally(pred)
+					save_pred_incrementally(pred, avatar_type)
 
 		end_time = time.perf_counter()
 		logger.debug(f'Total script took {end_time - start_time}')

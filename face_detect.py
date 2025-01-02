@@ -36,7 +36,7 @@ def get_smoothened_boxes(boxes, T):
 def start(images, avatar_type):
 	
 	cache = Wav2LipCache("cache/face_detection")
-	video_file_path = args_parser.params[avatar_type + "_video_file_path"]
+	video_file_path = hparams.media_folder + args_parser.params[avatar_type + "_video_file_path"]
 	
 	if cache.is_cached(video_file_path, "face_detection"):
 		logger.info("Face_detection file is cached")

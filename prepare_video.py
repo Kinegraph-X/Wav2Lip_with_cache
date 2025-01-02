@@ -16,7 +16,7 @@ args = Args()
 
 def start(avatar_type):
 	cache = Wav2LipCache("cache/raw_frames")
-	video_file_path = args_parser.params[avatar_type + "_video_file_path"]
+	video_file_path = hparams.media_folder + args_parser.params[avatar_type + "_video_file_path"]
 	
 	# if not os.path.isfile(agrs_parser.params.video_file_path):
 	if not os.path.isfile(video_file_path):

@@ -21,7 +21,7 @@ class Args:
 args = Args()
 """
 
-def start(frames):
+def start(frames, avatar_type = ''):
 	# batch_size = hparams.video_batch_size
 
 	"""
@@ -36,10 +36,11 @@ def start(frames):
 		List of resized and normalized face images for the batch.
 	"""
 	cache = Wav2LipCache("cache/face_detection")
+	video_file_path = hparams.media_folder + args_parser.params[avatar_type + '_video_file_path']
 
-	if cache.is_cached(args_parser.params['video_file_path'], "face_detection"):
+	if cache.is_cached(video_file_path, "face_detection"):
 		logger.info("Face_detection file is cached")
-		face_det_results = cache.read_npy(args_parser.params['video_file_path'], "face_detection")
+		face_det_results = cache.read_npy(video_file_path, "face_detection")
 
 	else:
 		raise Exception("Face_detection file should be cached")
