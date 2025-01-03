@@ -12,4 +12,6 @@ media/*.*
 !media/Avatar_Small_Online.mp4
 !media/Avatar_generic_man.mp4
 !media/Avatar_generic_woman.mp4
+!media/Avatar_generic_man_alternative.mp4
+!media/Avatar_generic_woman_alternative.mp4
 !readme.md
