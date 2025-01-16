@@ -67,6 +67,7 @@ def process_warmed_up(streamed = False, avatar_type = ''):
 
 def process_cold_start(streamed = False, avatar_type = ''):
 		global status
+		warm_start["avatar_type"] = avatar_type
 
 		start_time = time.perf_counter()
 
@@ -77,9 +78,11 @@ def process_cold_start(streamed = False, avatar_type = ''):
 		warm_start["frames"] = frames
 		face_detect_results = face_detect.start(frames, avatar_type)
 		if not len(face_detect_results):
-			return "processing aborted due to an error"
+			return "processing aborted due to an error in face detection : empty data returned"
 		warm_start["face_detect_results"] = face_detect_results
 		image_embeddings_preprocess.start(frames, avatar_type)
+
+		
 
 		# mel spectrogram may fail is the file is well formatted but too short
 		try:
@@ -104,7 +107,7 @@ def process(streamed = False, avatar_type = ''):
 		if os.path.exists(hparams.temp_pred_file_path):
 			os.remove(hparams.temp_pred_file_path)
 
-		if (len(warm_start) > 1):
+		if (len(warm_start) > 1 and warm_start["avatar_type"] == avatar_type):
 				return process_warmed_up(streamed, avatar_type)
 		else:
 				return process_cold_start(streamed, avatar_type)
